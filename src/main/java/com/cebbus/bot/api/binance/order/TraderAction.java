@@ -2,6 +2,9 @@ package com.cebbus.bot.api.binance.order;
 
 import com.binance.api.client.domain.account.NewOrderResponse;
 import com.binance.api.client.domain.account.Order;
+import com.binance.api.client.domain.general.FilterType;
+import com.binance.api.client.domain.general.SymbolFilter;
+import com.binance.api.client.domain.general.SymbolInfo;
 import com.cebbus.bot.api.Speculator;
 import com.cebbus.bot.api.analysis.TheOracle;
 import com.cebbus.bot.api.client.BinanceClient;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static java.math.RoundingMode.DOWN;
 
@@ -45,6 +49,15 @@ public abstract class TraderAction {
         Pair<Number, Number> priceAmount = getPriceAmountPair(order);
 
         return this.theOracle.newTrade(true, priceAmount);
+    }
+
+    List<SymbolFilter> getLotSizeFilterList() {
+        String name = this.symbol.getName();
+        SymbolInfo symbolInfo = this.marketClient.getSymbolInfo(name);
+        SymbolFilter lotSize = symbolInfo.getSymbolFilter(FilterType.LOT_SIZE);
+        SymbolFilter marketLotSize = symbolInfo.getSymbolFilter(FilterType.MARKET_LOT_SIZE);
+
+        return List.of(lotSize, marketLotSize);
     }
 
     private Pair<Number, Number> getPriceAmountPair(Order order) {

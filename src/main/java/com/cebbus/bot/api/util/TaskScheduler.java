@@ -1,9 +1,11 @@
 package com.cebbus.bot.api.util;
 
 import com.cebbus.bot.api.Speculator;
+import com.cebbus.bot.api.client.MarketClient;
 import com.cebbus.bot.api.dto.CsIntervalAdapter;
 import com.cebbus.bot.api.job.RadarJob;
 import com.cebbus.bot.api.job.SpeculatorJob;
+import com.cebbus.bot.api.notification.Notifier;
 import com.cebbus.bot.api.properties.Radar;
 import com.cebbus.bot.api.properties.Symbol;
 import lombok.extern.slf4j.Slf4j;
@@ -50,16 +52,19 @@ public class TaskScheduler {
         return schedule(job, trigger);
     }
 
-    public Date scheduleRadar(Radar radar) {
+    public Date scheduleRadar(Radar radar, MarketClient marketClient, Notifier notifier) {
         if (!radar.isActive()) {
             log.info("Radar is inactive!");
             return null;
         }
 
-        String key = "radar";
         CsIntervalAdapter interval = radar.getInterval();
-        JobDataMap dataMap = new JobDataMap(Map.of(key, radar));
+        JobDataMap dataMap = new JobDataMap(Map.of(
+                "radar", radar,
+                "notifier", notifier,
+                "marketClient", marketClient));
 
+        String key = "radar";
         JobDetail job = buildJob(RadarJob.class, key, key.toUpperCase(), dataMap);
         CronTrigger trigger = createTrigger(interval.getRadarCron(), key, interval.name());
 

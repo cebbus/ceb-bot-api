@@ -1,9 +1,7 @@
 package com.cebbus.bot.api.binance.order;
 
 import com.binance.api.client.domain.account.NewOrderResponse;
-import com.binance.api.client.domain.general.FilterType;
 import com.binance.api.client.domain.general.SymbolFilter;
-import com.binance.api.client.domain.general.SymbolInfo;
 import com.cebbus.bot.api.Speculator;
 import com.cebbus.bot.api.dto.TradeDto;
 import lombok.extern.slf4j.Slf4j;
@@ -61,13 +59,11 @@ public class SellerAction extends TraderAction {
         return this.marketClient.marketSell(name, quantity);
     }
 
-    private List<SymbolFilter> getLotSizeFilterList() {
-        String name = this.symbol.getName();
-        SymbolInfo symbolInfo = this.marketClient.getSymbolInfo(name);
-        SymbolFilter lotSize = symbolInfo.getSymbolFilter(FilterType.LOT_SIZE);
-        SymbolFilter marketLotSize = symbolInfo.getSymbolFilter(FilterType.MARKET_LOT_SIZE);
-
-        return List.of(lotSize, marketLotSize);
+    private BigDecimal getMaxQuantity(List<SymbolFilter> filterList) {
+        return filterList.stream()
+                .map(f -> new BigDecimal(f.getMaxQty()))
+                .min(BigDecimal::compareTo)
+                .orElseThrow();
     }
 
     private Integer getScale(List<SymbolFilter> filterList) {
@@ -77,13 +73,6 @@ public class SellerAction extends TraderAction {
                 .map(s -> s.stripTrailingZeros().scale())
                 .min(Integer::compareTo)
                 .orElse(2);
-    }
-
-    private BigDecimal getMaxQuantity(List<SymbolFilter> filterList) {
-        return filterList.stream()
-                .map(f -> new BigDecimal(f.getMaxQty()))
-                .min(BigDecimal::compareTo)
-                .orElseThrow();
     }
 
 }
