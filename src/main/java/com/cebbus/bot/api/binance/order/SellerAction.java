@@ -27,6 +27,11 @@ public class SellerAction extends TraderAction {
 
     public boolean exitable(boolean isManual) {
         boolean isSpecActive = this.speculator.isActive();
+        if (!this.theOracle.isInPosition(isSpecActive)) {
+            log.info("{} - you have no position!", this.symbol.getName());
+            return false;
+        }
+
         if (isSpecActive) {
             String base = this.symbol.getBase();
             BigDecimal balance = this.marketClient.getFreeBalance(base);

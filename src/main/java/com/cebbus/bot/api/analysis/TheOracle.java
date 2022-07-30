@@ -110,27 +110,22 @@ public class TheOracle {
 
     public boolean shouldEnter(boolean isSpecActive, boolean isManual) {
         TradingRecord tr = isSpecActive ? this.tradingRecord : this.backtestRecord;
-        if (!tr.getCurrentPosition().isNew()) {
-            log.info("{} - you are already in a position!", this.seriesHelper.getName());
-            return false;
-        }
-
         return isManual || this.cebStrategy.shouldEnter(tr);
     }
 
     public boolean shouldExit(boolean isSpecActive, boolean isManual) {
         TradingRecord tr = isSpecActive ? this.tradingRecord : this.backtestRecord;
-        if (!isInPosition(isSpecActive)) {
-            log.info("{} - you have no position!", this.seriesHelper.getName());
-            return false;
-        }
-
         return isManual || this.cebStrategy.shouldExit(tr);
     }
 
     public boolean isInPosition(boolean isSpecActive) {
         TradingRecord tr = isSpecActive ? this.tradingRecord : this.backtestRecord;
         return tr.getCurrentPosition().isOpened();
+    }
+
+    public boolean isNewPosition(boolean isSpecActive) {
+        TradingRecord tr = isSpecActive ? this.tradingRecord : this.backtestRecord;
+        return tr.getCurrentPosition().isNew();
     }
 
     public void addBar(CandleDto dto) {

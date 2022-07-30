@@ -41,6 +41,11 @@ public class BuyerAction extends TraderAction {
 
     public boolean enterable(boolean isManual) {
         boolean isSpecActive = this.speculator.isActive();
+        if (!this.theOracle.isNewPosition(isSpecActive)) {
+            log.info("{} - you are already in a position!", this.symbol.getName());
+            return false;
+        }
+
         if (isSpecActive) {
             String quote = this.symbol.getQuote();
             BigDecimal freeBalance = calculateFreeBalance();
